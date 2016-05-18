@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>JSYG tests</title>
+                
+        <script src="node_modules/jquery/dist/jquery.js"></script>
+        <script src="node_modules/jsyg/dist/JSYG.js"></script>
+        <script src="node_modules/jsyg-path/JSYG.Path.js"></script>
+        <script src="node_modules/jsyg-color/JSYG.Color.js"></script>
+        <script src="JSYG.Animation.js"></script>
+        <style>
+            
+        </style>
+    </head>
+    <body>
+                
+        <svg width="500" height="500">
+            <path class="item" d="M210,10 L290,20 L290,90 L210,100 Z" fill="none" stroke="black"/>
+            <path class="item" d="M210,10 L190,20 L190,90 L110,100 Z" stroke="pink" fill="none"/>
+            <circle class="item" r="40" cx="150" cy="70" fill="orange"/>
+            <rect class="item" x="10" y="10" width="40" height="40" fill="green"/>
+        </svg>
+        
+        <button>launch</button>
+        
+        <script>
+          
+          JSYG("button").on("click",function() {
+          
+            JSYG("svg > path,svg > polygon,svg > polyline").each(function() {
+
+              var $this = new JSYG.Path(this);
+
+              var length = $this.getLength();
+
+              $this.css("stroke-dashoffset",length);
+              $this.css("stroke-dasharray",length);
+
+              var anim = new JSYG.Janimation(this);
+
+              anim.set({
+                  duration:1000,
+                  easing:"swing",
+                  to:{ "stroke-dashoffset":0}
+              });
+
+              anim.play();            
+            })
+
+            var path = new JSYG.Path("path");
+
+            var length = path.getLength();
+
+            path.css("stroke-dashoffset",length);
+            path.css("stroke-dasharray",length);
+
+            var anim = new JSYG.Janimation("path");
+            anim.set({
+              duration:1000,
+              easing:"swing",
+              to:{
+                "stroke-dashoffset":0
+              }
+            });
+            
+            JSYG("svg > rect,svg > circle").each(function() {
+              
+              var $this = JSYG(this);
+              
+              var scale = $this.scale();
+              
+              $this.scale(0.001);
+              
+              var anim = new JSYG.Janimation(this);
+
+              anim.set({
+                  duration:1000,
+                  easing:"swing",
+                  to:{scale:scale}
+              });
+
+              anim.play();          
+   
+            });
+            
+          });
+                      
+        </script>
+    </body>
+</html>

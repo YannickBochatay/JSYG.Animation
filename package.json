@@ -1,0 +1,37 @@
+{
+  "name": "jsyg",
+  "version": "0.0.1",
+  "description": "Animation plugin for JSYG framework",
+  "main": "JSYG.Animation.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/YannickBochatay/JSYG.Animation.git"
+  },
+  "keywords": [
+    "svg",
+    "jquery",
+    "javascript",
+    "library"
+  ],
+  "author": "Yannick Bochatay",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/YannickBochatay/JSYG.Animation/issues"
+  },
+  "homepage": "https://github.com/YannickBochatay/JSYG.Animation#readme",
+  "devDependencies": {
+  },
+  "dependencies": {
+    "jsyg": "",
+    "jsyg-stdconstruct": "",
+    "jsyg-color": "",
+    "jsyg-matrix": "",
+    "jsyg-path": ""
+  }
+}
