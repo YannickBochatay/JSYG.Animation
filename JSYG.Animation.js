@@ -2,16 +2,46 @@
   
   if (typeof module == "object" && typeof module.exports == "object") {
     
-    module.exports = factory( require("jsyg"), require("jsyg-path"), require("jsyg-stdconstruct"), require("jsyg-matrix"), require("jsyg-color") );
+    module.exports = factory(
+      require("jquery"),
+      require("jsyg"),
+      require("jsyg-path"),
+      require("jsyg-stdconstruct"),
+      require("jsyg-matrix"),
+      require("jsyg-color"),
+      require("jquery.easing")
+    );
   }
-  else if (typeof define != "undefined" && define.amd) define("jsyg-boundingbox",["jsyg","jsyg-path","jsyg-stdconstruct","jsyg-matrix","jsyg-color"],factory);
+  else if (typeof define != "undefined" && define.amd) {
+    
+    define("jsyg-animation",[
+      "jquery",
+      "jsyg",
+      "jsyg-path",
+      "jsyg-stdconstruct",
+      "jsyg-matrix",
+      "jsyg-color",
+      "jquery.easing"
+    ],factory);
+  }
   else if (typeof JSYG != "undefined") {
-    if (JSYG.Path && JSYG.StdConstruct && JSYG.Matrix && JSYG.Color) factory(JSYG,JSYG.Path,JSYG.StdConstruct,JSYG.Matrix,JSYG.Color);
+    
+    if (jQuery && JSYG.Path && JSYG.StdConstruct && JSYG.Matrix && JSYG.Color) {
+      
+      factory(
+        jQuery,
+        JSYG,
+        JSYG.Path,
+        JSYG.StdConstruct,
+        JSYG.Matrix,
+        JSYG.Color
+      );
+    }
     else throw new Error("dependency is missing");
   }
   else throw new Error("JSYG is needed");
   
-}(function(JSYG,Path,StdConstruct,Matrix,Color) {
+}(function($,JSYG,Path,StdConstruct,Matrix,Color) {
   
   "use strict";
   
@@ -31,7 +61,7 @@
    */
   function setCurrentTime(time,arg) {
     
-    if (typeof arg == 'string' && !JSYG.isNumeric(arg)) {
+    if (typeof arg == 'string' && !$.isNumeric(arg)) {
       
       var match = /(\+|-)=([0-9]+)/.exec(arg),
       signe = match && match[1],
@@ -40,13 +70,13 @@
       return time + (signe == '+' ? 1 : -1 ) * val;
       
     }
-    else if (JSYG.isNumeric(arg)) return Number(arg);
+    else if ($.isNumeric(arg)) return Number(arg);
     else throw new Error(arg+" : argument incorrect.");
   }
   
   function getDuration(duration) {
     
-    if (JSYG.isNumeric(duration)) return duration;
+    if ($.isNumeric(duration)) return duration;
     else if (duration == "slow") return 600;
     else if (duration == "fast") return 200;
     else throw new Error(duration+" : argument incorrect.");
@@ -59,7 +89,7 @@
     var result = regValAndUnits.exec(str);
     
     return {
-      value: (result && result[1]!=null) ? parseFloat(result[1]) : JSYG.isNumeric(str) ? parseFloat(str) : str,
+      value: (result && result[1]!=null) ? parseFloat(result[1]) : $.isNumeric(str) ? parseFloat(str) : str,
       units:result && result[2] || ''
     };
   }
@@ -87,7 +117,7 @@
     
     op = op[1]; //sous-chaîne trouvée
     
-    if (!JSYG.isNumeric(initialValue.value) || !JSYG.isNumeric(donnee.value)) return initialValue.value+initialValue.units;
+    if (!$.isNumeric(initialValue.value) || !$.isNumeric(donnee.value)) return initialValue.value+initialValue.units;
     
     switch (op) {
       case '+' : return initialValue.value + donnee.value + initialValue.units;
@@ -138,7 +168,7 @@
    */
   function indMaxDistance(jPath) {
     
-    if (!jPath.isNormalized()) throw new Error("You must normalize the path");
+    if (!jPath.isNormalized()) throw new Error("You must normalize the path : "+jPath.attr("d"));
     
     var max = 0,
     ind=-1,
@@ -250,13 +280,19 @@
     _setPathFromTo : function() {
       
       var pathFrom = new Path( JSYG(this.node).clone() ).toCubicCurve(),
+          
       fromList = pathFrom.getSegList(),
-      pathTo = (typeof this.to.d == 'string') ?
-      new Path().attr('d',this.to.d).toCubicCurve() : new Path().setSegList(this.to.d),
-      toList = pathTo.getSegList(),
-      ind,subPath,
-      target = fromList.length > toList.length ? pathTo : pathFrom;
       
+      pathTo = (typeof this.to.d == 'string') ?
+  
+      new Path().attr('d',this.to.d).toCubicCurve() : new Path().setSegList(this.to.d),
+          
+      toList = pathTo.getSegList(),
+      
+      ind,subPath,
+      
+      target = fromList.length > toList.length ? pathTo : pathFrom;
+  
       while (fromList.length != toList.length) {
         
         ind = indMaxDistance(target);
@@ -389,13 +425,13 @@
         if (regColorProp.test(n)) {
           
           try { this._from[n] = new Color(this._from[n]); }
-          catch(e) { this._from[n] = "white"; }
+          catch(e) { this._from[n] = new Color("white"); }
         }
         else {
           
           this._from[n] = separateValAndUnits(this._from[n]);
           
-          if (!JSYG.isNumeric(this._from[n].value)) this._from[n].value = 0;
+          if (!$.isNumeric(this._from[n].value)) this._from[n].value = 0;
           
           if (this._to[n].units === '') this._to[n].units = this._from[n].units;
         }
@@ -431,8 +467,8 @@
         if (this.to && ('d' in this.to)) this._setPathFromTo();
       }
       
-      coef = Animation.easing[this.easing](null,ms,0,100,duration);
-      
+      coef = (this.easing != "linear" && $.easing[this.easing]) ? $.easing[this.easing](null,ms,0,100,duration) : 100 * ms/duration;
+                  
       for (n in this._to){
         
         if (regColorProp.test(n)) {
@@ -507,6 +543,7 @@
           that.trigger('end');
         }
         else that._request();
+        
       });
     },
     
@@ -553,141 +590,12 @@
     }
   };
   
-  /*
-	Copyright 2008 George McGinley Smith
-	Copyright 2001 Robert Penner
-	All rights reserved.
-	// t: current time, b: begInnIng value, c: change In value, d: duration
-   */
-  /**
-   * Liste des styles d'animation possibles
-   */
-  Animation.easing = {
-    
-    linear : function(x,t,b,c,d) { return t * (c-b) / d; },
-    
-    swing : function() { return this.easeInOutQuad.apply(this,arguments); },
-    
-    easeInQuad: function (x, t, b, c, d) { return c*(t/=d)*t + b; },
-    
-    easeOutQuad: function (x, t, b, c, d) { return -c *(t/=d)*(t-2) + b; },
-    
-    easeInOutQuad: function (x, t, b, c, d) {
-      if ((t/=d/2) < 1) return c/2*t*t + b;
-      return -c/2 * ((--t)*(t-2) - 1) + b;
-    },
-    
-    easeInCubic: function (x, t, b, c, d) { return c*(t/=d)*t*t + b; },
-    
-    easeOutCubic: function (x, t, b, c, d) { return c*((t=t/d-1)*t*t + 1) + b; },
-    
-    easeInOutCubic: function (x, t, b, c, d) {
-      if ((t/=d/2) < 1) return c/2*t*t*t + b;
-      return c/2*((t-=2)*t*t + 2) + b;
-    },
-    easeInQuart: function (x, t, b, c, d) { return c*(t/=d)*t*t*t + b; },
-    
-    easeOutQuart: function (x, t, b, c, d) { return -c * ((t=t/d-1)*t*t*t - 1) + b; },
-    
-    easeInOutQuart: function (x, t, b, c, d) {
-      if ((t/=d/2) < 1) return c/2*t*t*t*t + b;
-      return -c/2 * ((t-=2)*t*t*t - 2) + b;
-    },
-    easeInQuint: function (x, t, b, c, d) { return c*(t/=d)*t*t*t*t + b; },
-    easeOutQuint: function (x, t, b, c, d) { return c*((t=t/d-1)*t*t*t*t + 1) + b; },
-    easeInOutQuint: function (x, t, b, c, d) {
-      if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
-      return c/2*((t-=2)*t*t*t*t + 2) + b;
-    },
-    easeInSine: function (x, t, b, c, d) {
-      return -c * Math.cos(t/d * (Math.PI/2)) + c + b;
-    },
-    easeOutSine: function (x, t, b, c, d) {
-      return c * Math.sin(t/d * (Math.PI/2)) + b;
-    },
-    easeInOutSine: function (x, t, b, c, d) {
-      return -c/2 * (Math.cos(Math.PI*t/d) - 1) + b;
-    },
-    easeInExpo: function (x, t, b, c, d) {
-      return (t==0) ? b : c * Math.pow(2, 10 * (t/d - 1)) + b;
-    },
-    easeOutExpo: function (x, t, b, c, d) {
-      return (t==d) ? b+c : c * (-Math.pow(2, -10 * t/d) + 1) + b;
-    },
-    easeInOutExpo: function (x, t, b, c, d) {
-      if (t==0) return b;
-      if (t==d) return b+c;
-      if ((t/=d/2) < 1) return c/2 * Math.pow(2, 10 * (t - 1)) + b;
-      return c/2 * (-Math.pow(2, -10 * --t) + 2) + b;
-    },
-    easeInCirc: function (x, t, b, c, d) {
-      return -c * (Math.sqrt(1 - (t/=d)*t) - 1) + b;
-    },
-    easeOutCirc: function (x, t, b, c, d) {
-      return c * Math.sqrt(1 - (t=t/d-1)*t) + b;
-    },
-    easeInOutCirc: function (x, t, b, c, d) {
-      if ((t/=d/2) < 1) return -c/2 * (Math.sqrt(1 - t*t) - 1) + b;
-      return c/2 * (Math.sqrt(1 - (t-=2)*t) + 1) + b;
-    },
-    easeInElastic: function (x, t, b, c, d) {
-      var s=1.70158;var p=0;var a=c;
-      if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
-      if (a < Math.abs(c)) { a=c; s=p/4; }
-      else s = p/(2*Math.PI) * Math.asin (c/a);
-      return -(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
-    },
-    easeOutElastic: function (x, t, b, c, d) {
-      var s=1.70158;var p=0;var a=c;
-      if (t==0) return b;  if ((t/=d)==1) return b+c;  if (!p) p=d*.3;
-      if (a < Math.abs(c)) { a=c; s=p/4; }
-      else s = p/(2*Math.PI) * Math.asin (c/a);
-      return a*Math.pow(2,-10*t) * Math.sin( (t*d-s)*(2*Math.PI)/p ) + c + b;
-    },
-    easeInOutElastic: function (x, t, b, c, d) {
-      var s=1.70158;var p=0;var a=c;
-      if (t==0) return b;  if ((t/=d/2)==2) return b+c;  if (!p) p=d*(.3*1.5);
-      if (a < Math.abs(c)) { a=c; s=p/4; }
-      else s = p/(2*Math.PI) * Math.asin (c/a);
-      if (t < 1) return -.5*(a*Math.pow(2,10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )) + b;
-      return a*Math.pow(2,-10*(t-=1)) * Math.sin( (t*d-s)*(2*Math.PI)/p )*.5 + c + b;
-    },
-    easeInBack: function (x, t, b, c, d, s) {
-      if (s == undefined) s = 1.70158;
-      return c*(t/=d)*t*((s+1)*t - s) + b;
-    },
-    easeOutBack: function (x, t, b, c, d, s) {
-      if (s == undefined) s = 1.70158;
-      return c*((t=t/d-1)*t*((s+1)*t + s) + 1) + b;
-    },
-    easeInOutBack: function (x, t, b, c, d, s) {
-      if (s == undefined) s = 1.70158; 
-      if ((t/=d/2) < 1) return c/2*(t*t*(((s*=(1.525))+1)*t - s)) + b;
-      return c/2*((t-=2)*t*(((s*=(1.525))+1)*t + s) + 2) + b;
-    },
-    easeInBounce: function (x, t, b, c, d) {
-      return c - this.easeOutBounce (x, d-t, 0, c, d) + b;
-    },
-    easeOutBounce: function (x, t, b, c, d) {
-      if ((t/=d) < (1/2.75)) {
-        return c*(7.5625*t*t) + b;
-      } else if (t < (2/2.75)) {
-        return c*(7.5625*(t-=(1.5/2.75))*t + .75) + b;
-      } else if (t < (2.5/2.75)) {
-        return c*(7.5625*(t-=(2.25/2.75))*t + .9375) + b;
-      } else {
-        return c*(7.5625*(t-=(2.625/2.75))*t + .984375) + b;
-      }
-    },
-    easeInOutBounce: function (x, t, b, c, d) {
-      if (t < d/2) return this.easeInBounce (x, t*2, 0, c, d) * .5 + b;
-      return this.easeOutBounce (x, t*2-d, 0, c, d) * .5 + c*.5 + b;
-    }
-  };
+  
   
   if (typeof JSYG != "undefined") {
     
-    JSYG.Janimation = Animation
+    if (typeof JSYG.Animation != "undefined") JSYG.Janimation = Animation;
+    else JSYG.Animation = Animation;
   }
   
 }));

@@ -25,13 +25,13 @@
     "url": "https://github.com/YannickBochatay/JSYG.Animation/issues"
   },
   "homepage": "https://github.com/YannickBochatay/JSYG.Animation#readme",
-  "devDependencies": {
-  },
+  "devDependencies": {},
   "dependencies": {
+    "jquery.easing": "^1.3.2",
     "jsyg": "",
-    "jsyg-stdconstruct": "",
     "jsyg-color": "",
     "jsyg-matrix": "",
-    "jsyg-path": ""
+    "jsyg-path": "",
+    "jsyg-stdconstruct": ""
   }
 }

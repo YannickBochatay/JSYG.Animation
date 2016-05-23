@@ -5,7 +5,9 @@
         <title>JSYG tests</title>
                 
         <script src="node_modules/jquery/dist/jquery.js"></script>
+        <script src="node_modules/jquery.easing/jquery.easing.js"></script>
         <script src="node_modules/jsyg/dist/JSYG.js"></script>
+        <script src="node_modules/pathseg/pathseg.js"></script>
         <script src="node_modules/jsyg-path/JSYG.Path.js"></script>
         <script src="node_modules/jsyg-color/JSYG.Color.js"></script>
         <script src="JSYG.Animation.js"></script>
@@ -16,7 +18,7 @@
     <body>
                 
         <svg width="500" height="500">
-            <path class="item" d="M210,10 L290,20 L290,90 L210,100 Z" fill="none" stroke="black"/>
+            <path class="item" d="M10 80 Q 52.5 10, 95 80 T 180 80" fill="none" stroke="black"/>
             <path class="item" d="M210,10 L190,20 L190,90 L110,100 Z" stroke="pink" fill="none"/>
             <circle class="item" r="40" cx="150" cy="70" fill="orange"/>
             <rect class="item" x="10" y="10" width="40" height="40" fill="green"/>
@@ -26,7 +28,27 @@
         
         <script>
           
+
+                    
+                    
           JSYG("button").on("click",function() {
+            
+            var anim = new JSYG.Janimation("path");
+
+            anim.play({
+                to : {
+                    d:"M210,10 L190,20 L190,90  L110,100 T 180 80 Z",
+                    fill : "red"
+                },
+                easing:"swing",
+                onend : function() {
+                  anim.way = -1
+                  anim.play()
+                }
+            });
+            
+
+            return;
           
             JSYG("svg > path,svg > polygon,svg > polyline").each(function() {
 
