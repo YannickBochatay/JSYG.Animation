@@ -1,5 +1,5 @@
 {
-  "name": "jsyg",
+  "name": "jsyg-animation",
   "version": "0.0.1",
   "description": "Animation plugin for JSYG framework",
   "main": "JSYG.Animation.js",
