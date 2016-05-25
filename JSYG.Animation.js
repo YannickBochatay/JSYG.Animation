@@ -598,4 +598,6 @@
     else JSYG.Animation = Animation;
   }
   
+  return Animation;
+  
 }));

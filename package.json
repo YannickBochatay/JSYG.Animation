@@ -1,6 +1,6 @@
 {
   "name": "jsyg-animation",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Animation plugin for JSYG framework",
   "main": "JSYG.Animation.js",
   "directories": {
